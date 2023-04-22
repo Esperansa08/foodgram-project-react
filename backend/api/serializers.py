@@ -6,8 +6,8 @@ from rest_framework.validators import UniqueValidator
 
 #from reviews.models import Category, Comment, Genre, Review, Title
 #from .exceptions import BadRating, IncorrectTitleInYear
-from recipes.models import Recipe, Ingredient, Tag
-
+from recipes.models import Recipe, Ingredient, Tag, IngredientInRecipe
+from users.models import Subscribe
 User = get_user_model()
 
 
@@ -30,10 +30,18 @@ class SignupSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name')
+        #, 'is_subscribed')
         model = User
 
+class SubscribeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name')
+        #, 'is_subscribed')
+        model = Subscribe
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.RegexField(
@@ -49,7 +57,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=256)
+    name = serializers.CharField(max_length=200)
     #amount = serializers.CharField()
        # validators=[])
 
@@ -60,47 +68,67 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id','name', 'amount', 'measurement_unit') 
+        fields = ('id','name', 'measurement_unit') 
         #lookup_field = 'name'
-
-
-class RecipeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class TagSerializer(serializers.ModelSerializer):
 #     category = CategorySerializer(read_only=True)
 #     genre = GenreSerializer(many=True, required=False)
-#     rating = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=200)
+    slug = serializers.CharField(
+        max_length=50,
+        validators=[validators.validate_slug,
+                    UniqueValidator(queryset=Tag.objects.all())])
 
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
-       # lookup_field = 'slug'
+        lookup_field = 'slug'
 
-# class TitleSerializerWrite(serializers.ModelSerializer):
-#     category = serializers.SlugRelatedField(slug_field='slug',
-#                                             queryset=Category.objects.all())
-#     genre = serializers.SlugRelatedField(many=True,
-#                                          slug_field='slug',
-#                                          queryset=Genre.objects.all())
 
-#     rating = serializers.IntegerField(read_only=True)
+class RecipeSerializer(serializers.ModelSerializer):
+    is_favorited = serializers.BooleanField(read_only=True) #, required=False)
+    is_in_shopping_cart= serializers.BooleanField(read_only=True, required=False)
 
-#     class Meta:
-#         model = Title
-#         fields = ('id', 'name', 'year', 'rating', 'description', 'genre',
-#                   'category')
+    class Meta:
+        model = Recipe
+        fields = ('id', 'author', 'text','ingredients','cooking_time',
+                  'is_favorited', 'is_in_shopping_cart')
 
-#     def validate_year(self, value):
-#         year_now = dt.date.today().year
-#         print(year_now)
-#         if value > year_now:
-#             raise IncorrectTitleInYear('Передано некорректное значение года')
-#         return value
+class RecipeSerializerRead(serializers.ModelSerializer):
+    #ingredients = IngredientSerializer(many=True)
+    author = UserSerializer()
+    ingredients = IngredientSerializer(many=True) #, required=False)
+    #rating = serializers.IntegerField(read_only=True)
+    tags = TagSerializer(many=True)
+    #ingredients = serializers.SerializerMethodField()
+    class Meta:
+        model = Recipe
+        fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time')
+    
+    def get_ingredients(self, obj):
+        serializer = IngredientSerializer(obj.ingredients)
+        return serializer.data     
+
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IngredientInRecipe
+        fields = ('id', 'amount')
+
+        
+class RecipeSerializerWrite(serializers.ModelSerializer):
+    ingredients = serializers.SlugRelatedField(many=True, read_only=False,
+                                         slug_field='id',
+                                         queryset=Ingredient.objects.all())
+    tags = serializers.SlugRelatedField(many=True, read_only=False,
+                                         slug_field='id',
+                                         queryset=Tag.objects.all())
+    class Meta:
+        model = Recipe
+        fields = ('ingredients', 'tags', 'image', 'name','text','cooking_time')
 
 
 # class ReviewSerializer(serializers.ModelSerializer):

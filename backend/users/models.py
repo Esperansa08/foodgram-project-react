@@ -19,10 +19,11 @@ class User(AbstractUser):
         unique=True,
         verbose_name='Электронная почта'
     )
-    bio = models.TextField(
-        blank=True,
-        verbose_name='Описание'
-    )
+
+    # bio = models.TextField(
+    #     blank=True,
+    #     verbose_name='Описание'
+    # )
     role = models.CharField(
         max_length=10,
         choices=Role.choices,
@@ -51,3 +52,27 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.Role.ADMIN
+
+class Subscribe(models.Model):
+    user = models.ForeignKey(
+        User,
+        verbose_name='Подписчик',
+        #on_delete=None,
+        on_delete=models.CASCADE,
+        related_name='subscriber')
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор рецепта',
+        on_delete=models.CASCADE,
+        related_name='subscribing')
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='Возможена только одна подписка на автора'
+            )
+        ]

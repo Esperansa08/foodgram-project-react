@@ -12,16 +12,17 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from django.views.generic import TemplateView
+from djoser.views import UserViewSet
 
-from recipes.models import Ingredient, Recipe, Tag #, Comment, Genre, Review, Title
+from recipes.models import Ingredient, Recipe, Tag
+from users.models import Subscribe
 #from .exceptions import IncorrectAuthorReview, TitleOrReviewNotFound
-#from .filters import TitleFilter
+#from .filters import RecipeFilter
 #from .permissions import (IsAdminOnly, IsAdminOrReadOnly,
 #                          IsAuthorModeratorAdminOrReadOnly)
 from .serializers import (IngredientSerializer, RecipeSerializer, TagSerializer, 
-                        #   CommentSerializer,
-                        #   GenreSerializer, ReviewSerializer, 
-                        #   TitleSerializerRead, TitleSerializerWrite,
+                          RecipeSerializerRead, RecipeSerializerWrite,
+                          SubscribeSerializer,
                           SignupSerializer,TokenSerializer, UserSerializer)
 
 User = get_user_model()
@@ -81,18 +82,36 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ['get', 'post']
 
     @action(
         detail=False,
-        methods=['GET', 'PATCH'],
+        methods=['GET','POST'],
         permission_classes=(IsAuthenticated,)
     )
     def me(self, request):
         """Получаем и обновляем свои данные"""
         user = request.user
-        if request.method == 'PATCH':
-            serializer = UserSerializer(
+        # if request.method == 'PATCH':
+        #     serializer = UserSerializer(
+        #         user,
+        #         data=request.data,
+        #         partial=True
+        #     )
+        #     serializer.is_valid(raise_exception=True)
+        #     serializer.save(role=user.role)
+        #     return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def subscribe(self, request):
+        """Получаем и обновляем свои данные"""
+        user = request.user
+        author = User.objects.get(username=request.username)
+        if request.method == 'POST':
+            if user != author:
+                Subscribe.objects.get_or_create(user=request.user, author=author)
+                serializer = UserSerializer(
                 user,
                 data=request.data,
                 partial=True
@@ -104,7 +123,20 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+    
+
+class SubscribeViewSet(viewsets.ModelViewSet):
+    serializer_class = SubscribeSerializer
+    queryset = Subscribe.objects.all()
+    #permission_classes = (IsAdminOnly,)
+    lookup_field = 'username'
+    pagination_class = LimitOffsetPagination
+    # filter_backends = (filters.SearchFilter,)
+    # search_fields = ('username',)
+    # http_method_names = ['get', 'post', 'patch', 'delete']
+
+    
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
 #     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = IngredientSerializer
@@ -128,10 +160,16 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
    # permission_classes = IsAuthorModeratorAdminOrReadOnly,
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    pagination_class = LimitOffsetPagination
+    #serializer_class = RecipeSerializer
+    serializer_class = (RecipeSerializerRead, RecipeSerializerWrite)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeSerializerRead
+        return RecipeSerializerWrite
 
-
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
 #     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = TagSerializer

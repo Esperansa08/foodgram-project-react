@@ -27,7 +27,8 @@ THIRD_PARTY_APPS = ('rest_framework',
                     'rest_framework.authtoken',
                     'corsheaders',
                     'djoser',
-                    'django_filters',)
+                    'django_filters',
+                    'colorfield')
 
 LOCAL_APPS = ('api',
               'users',
@@ -158,6 +159,8 @@ REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': [
     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 6,
 }
 
 SIMPLE_JWT = {
@@ -166,3 +169,5 @@ SIMPLE_JWT = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CART_SESSION_ID = 'cart'
