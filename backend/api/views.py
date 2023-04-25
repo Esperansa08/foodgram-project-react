@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.contenttypes.models import ContentType
 from django.core.mail import send_mail
 from django.db import IntegrityError
-from django.db.models import Avg, OuterRef
+from django.db.models import Avg, OuterRef, Exists
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, mixins, status, viewsets, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -14,70 +16,24 @@ from rest_framework_simplejwt.tokens import AccessToken
 from django.views.generic import TemplateView
 from djoser.views import UserViewSet
 
-from recipes.models import Ingredient, Recipe, Tag
+from recipes.models import (Ingredient, Recipe, Tag, IngredientInRecipe,
+                         Favorite, Shopping_list)
 from users.models import Subscribe
-#from .exceptions import IncorrectAuthorReview, TitleOrReviewNotFound
 #from .filters import RecipeFilter
-#from .permissions import (IsAdminOnly, IsAdminOrReadOnly,
-#                          IsAuthorModeratorAdminOrReadOnly)
+from .permissions import (IsAuthorOrReadOnly, IsAdminOrReadOnly)
 from .serializers import (IngredientSerializer, RecipeSerializer, TagSerializer, 
                           RecipeSerializerRead, RecipeSerializerWrite,
                           SubscribeSerializer,
-                          SignupSerializer,TokenSerializer, UserSerializer)
+                          RecipeShortSerializer,
+                         # TokenSerializer,
+                           UserSerializer)
 
 User = get_user_model()
 
 
-@api_view(['POST'])
-@permission_classes((AllowAny,))
-def signup(request):
-    """Содаем пользователя и получаем письмо с ключом на почту"""
-    serializer = SignupSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    username = serializer.validated_data['username']
-    email = serializer.validated_data['email']
-    try:
-        user, created = User.objects.get_or_create(
-            username=username,
-            email=email.lower()
-        )
-    except IntegrityError:
-        return Response(
-            {'message': 'Имя пользователя или почта уже используются.'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject='Регистрация на Foodgram',
-        message=f"Your confirmation code: {confirmation_code}",
-        from_email=None,
-        recipient_list=[user.email],
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes((AllowAny,))
-def token(request):
-    "Проверяем полученый ключ и выдаем токен Brearer"
-    serializer = TokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(
-        User, username=serializer.validated_data['username']
-    )
-    token = serializer.validated_data['confirmation_code']
-    if not default_token_generator.check_token(user, token):
-        return Response(
-            'Неверный код подтверждения', status=status.HTTP_400_BAD_REQUEST
-        )
-    token = AccessToken.for_user(user)
-    return Response({'token': str(token)}, status=status.HTTP_200_OK)
-
-
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(UserViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    #permission_classes = (IsAdminOnly,)
     lookup_field = 'username'
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
@@ -85,81 +41,65 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
 
     @action(
-        detail=False,
-        methods=['GET','POST'],
+        detail=True,
+        methods=['POST', 'DELETE'],
         permission_classes=(IsAuthenticated,)
     )
-    def me(self, request):
-        """Получаем и обновляем свои данные"""
-        user = request.user
-        # if request.method == 'PATCH':
-        #     serializer = UserSerializer(
-        #         user,
-        #         data=request.data,
-        #         partial=True
-        #     )
-        #     serializer.is_valid(raise_exception=True)
-        #     serializer.save(role=user.role)
-        #     return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def subscribe(self, request):
-        """Получаем и обновляем свои данные"""
+        """Подписываемся и отписываемся"""
         user = request.user
-        author = User.objects.get(username=request.username)
+        author_id = self.kwargs.get('id')
+        author = get_object_or_404(User, id=author_id)
         if request.method == 'POST':
             if user != author:
                 Subscribe.objects.get_or_create(user=request.user, author=author)
                 serializer = UserSerializer(
-                user,
-                data=request.data,
-                partial=True
-            )
+                    user,
+                    data=request.data,
+                    partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save(role=user.role)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        if request.method == 'DELETE':
+            subscription = get_object_or_404(Subscribe,
+                                                user=user,
+                                                author=author)
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
+    
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated])  
+    def subscriptions(self, request):
+        """Получаем все подписки"""
+        user = request.user
+        queryset = User.objects.filter(subscribing__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscribeSerializer(pages,
+                                         many=True,
+                                         context={'request': request})
+        return self.get_paginated_response(serializer.data)
     
 
-class SubscribeViewSet(viewsets.ModelViewSet):
-    serializer_class = SubscribeSerializer
-    queryset = Subscribe.objects.all()
-    #permission_classes = (IsAdminOnly,)
-    lookup_field = 'username'
-    pagination_class = LimitOffsetPagination
-    # filter_backends = (filters.SearchFilter,)
-    # search_fields = ('username',)
-    # http_method_names = ['get', 'post', 'patch', 'delete']
-
-    
+   
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
-#     permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     serializer_class = IngredientSerializer
-    search_fields = ('name',)
-#     filterset_class = TitleFilter
-#     pagination_class = LimitOffsetPagination
-#     filter_backends = (DjangoFilterBackend,)
+    search_fields = ('^name',)
+    pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
 
-#     def get_queryset(self):
-#         return Title.objects.annotate(
-#             rating=Review.objects.filter(
-#                 title=OuterRef('pk')).values(
-#                     'title_id').annotate(Avg('score')).values('score__avg')
-#         )
 
-#     def get_serializer_class(self):
-#         if self.request.method == 'GET':
-#             return TitleSerializerRead
-#         return TitleSerializerWrite
 
 class RecipeViewSet(viewsets.ModelViewSet):
-   # permission_classes = IsAuthorModeratorAdminOrReadOnly,
-    queryset = Recipe.objects.all()
+    permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly,)
+    #queryset = Recipe.objects.all()
     pagination_class = LimitOffsetPagination
     #serializer_class = RecipeSerializer
     serializer_class = (RecipeSerializerRead, RecipeSerializerWrite)
@@ -168,6 +108,41 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return RecipeSerializerRead
         return RecipeSerializerWrite
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        queryset = Recipe.objects.all()
+        #queryset = self.annotate_qs_is_favorite_field(queryset)
+        return queryset
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk):
+        if request.method == 'POST':
+            return self.add_fav(Favorite, request.user, pk)
+        else:
+            return self.delete_fav(Favorite, request.user, pk)
+        
+    def add_fav(self, model, user, pk):
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            return Response({'errors': 'Рецепт уже добавлен!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipe, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipeShortSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_fav(self, model, user, pk): 
+        recipe_del = model.objects.filter(user=user, recipe__id=pk)
+        if recipe_del.exists():
+            recipe_del.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепт уже удален!'},
+                        status=status.HTTP_400_BAD_REQUEST)   
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
@@ -177,6 +152,11 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 #     filter_backends = (filters.SearchFilter,)
 #     search_fields = ('name',)
 #     lookup_field = 'slug'
+
+def download_shopping_cart():
+    pass
+
+
 
 
 # class CategoryViewSet(mixins.ListModelMixin,
@@ -281,5 +261,3 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 #             review=review
 #         )
 
-class RedocView(TemplateView):
-    template_name = "redoc.html"

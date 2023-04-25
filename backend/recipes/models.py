@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import MinValueValidator
-
+from django.contrib.contenttypes.fields import (GenericRelation,
+                                                GenericForeignKey)
+from django.contrib.contenttypes.models import ContentType
 from colorfield.fields import ColorField
 
 User = get_user_model()
@@ -110,10 +112,12 @@ class Recipe(models.Model):
         # max_length=100)
         #,null=True
         #**options)
+    favorites = GenericRelation('Favorite')
     
     class Meta:
         verbose_name_plural = 'Рецепты'
         verbose_name = 'Рецепты'
+        ordering = ('-id',)
 
     def __str__(self):
         return self.name[:15]
@@ -139,7 +143,9 @@ class IngredientInRecipe(models.Model):
         verbose_name_plural = 'Ингредиент-рецепт'
 
     def __str__(self):
-        return f'{self.ingredient_id} {self.recipe_id}'
+        return  (f'{self.ingredient.name} ({self.ingredient.measurement_unit})'
+                f' - {self.amount} ')
+        #f'{self.ingredient_id} {self.recipe_id}'
     
 
 class TagInRecipe(models.Model):
@@ -152,8 +158,10 @@ class TagInRecipe(models.Model):
 
     def __str__(self):
         return f'{self.tag_id} {self.recipe_id}'
-    
-class Favorites(models.Model):
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.ForeignKey(
         Recipe,
         related_name='favorite',
@@ -161,22 +169,13 @@ class Favorites(models.Model):
         null=False,
         on_delete=models.CASCADE,
         verbose_name='Название рецепта')
-    # author = models.ForeignKey(
-    #     Recipe,
-    #     null=False,
-    #     default=0,
-    #     on_delete=models.CASCADE,
-    #     verbose_name='Автор рецепта',)
-
-    # image = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    # cooking_time = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = 'Избранное'
         verbose_name = 'Избранное'
-        # constraints = [models.UniqueConstraint(
-        #         fields=['name', 'author'],
-        #         name='Возможен только один отзыв на произведение')]
+        constraints = [models.UniqueConstraint(
+                fields=['user', 'user'],
+                name='unique_user_content')]
 
     def __str__(self):
         return f'{self.name}'

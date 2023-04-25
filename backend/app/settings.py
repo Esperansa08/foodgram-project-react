@@ -25,10 +25,10 @@ DJANGO_APPS = ('django.contrib.admin',
 
 THIRD_PARTY_APPS = ('rest_framework',
                     'rest_framework.authtoken',
-                    'corsheaders',
+                    #'corsheaders',
                     'djoser',
-                    'django_filters',
-                    'colorfield')
+                    'django_filters',)
+                    #'colorfield')
 
 LOCAL_APPS = ('api',
               'users',
@@ -48,10 +48,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
-
-# INTERNAL_IPS = [
-#     '127.0.0.1',
-# ] 
 
 ROOT_URLCONF = 'app.urls'
 TEMPLATES_DIR = BASE_DIR / 'templates'
@@ -126,16 +122,13 @@ POSTS_PER_PAGE = 10
 # LOGIN_URL = 'users:login'
 # LOGIN_REDIRECT_URL = 'posts:index'
 
-DJOSER = {
-    'LOGIN_FIELD': 'email',
-}
+# DJOSER = {
+#     'LOGIN_FIELD': 'email',
+# }
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
-DEFAULT_FROM_EMAIL = 'esper@admin.com'
 
 # REST_FRAMEWORK = {
 #     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -155,18 +148,30 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
-    "AUTH_HEADER_TYPES": ("Bearer",),
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreateSerializer',
+        'user': 'api.serializers.UserSerializer',
+        'current_user': 'api.serializers.UserSerializer',
+    },
+
+    'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+    },
+    'HIDE_USERS': False,
 }
+
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
+#     "AUTH_HEADER_TYPES": ("Bearer",),
+# }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
