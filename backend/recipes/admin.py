@@ -1,8 +1,15 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe	
+from django.utils.safestring import mark_safe
 
-from recipes.models import (Recipe, Ingredient, Tag, IngredientInRecipe,
-                         Favorite, Shopping_list, TagInRecipe)
+from recipes.models import (
+    Recipe,
+    Ingredient,
+    Tag,
+    IngredientInRecipe,
+    Favorite,
+    Shopping_list,
+    TagInRecipe,
+)
 
 
 class ingredientsInline(admin.TabularInline):
@@ -12,69 +19,63 @@ class ingredientsInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'name',
-        'author',
-        'text',
-        'cooking_time',
-        'preview'
-    )
-    readonly_fields = ["preview"]
+    list_display = ('id', 'name', 'author', 'text', 'cooking_time', 'preview')
+    readonly_fields = ['preview']
     search_fields = ('name',)
-    list_filter = ('author','name', 'tags',)
-    # empty_value_display = '-пусто-'
-    exclude = ['ingredients','tags']
+    list_filter = (
+        'author',
+        "name",
+        "tags",
+    )
+    exclude = ["ingredients", "tags"]
 
     def preview(self, obj):
         return mark_safe(f"<img src='{obj.image.url}' width='60' />")
 
+
 @admin.register(Ingredient)
 class IngredienteAdmin(admin.ModelAdmin):
-    list_display = ('id','name', 'measurement_unit')
-    #ordering = ('-name',)
+    list_display = ('id', 'name', 'measurement_unit')
+    # ordering = ('-name',)
     list_filter = ('name',)
     search_fields = ('name',)
 
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('id', 'name', 'slug')
     search_fields = ('name',)
 
 
 @admin.register(IngredientInRecipe)
 class IngredientInRecipeAdmin(admin.ModelAdmin):
-    list_display = (
-        'ingredient',
-        'recipe_id',
-        'recipe',
-        'amount')
-    ordering = ('-recipe_id',)
-    search_fields = ('ingredient',)
-    list_filter = ('recipe',)
+    list_display = ("ingredient", "recipe_id", "recipe", "amount")
+    ordering = ("-recipe_id",)
+    search_fields = ("ingredient",)
+    list_filter = ("recipe",)
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user',)
-    search_fields = ('user',)
+    list_display = ("recipe", "user")
+    search_fields = ("user", "recipe",)
 
 
 @admin.register(Shopping_list)
 class Shopping_listAdmin(admin.ModelAdmin):
-    list_display = ('name', 'amount',)
-    search_fields = ('name',)
+    list_display = ("recipe", "user",)
+    search_fields = ("recipe",)
+
 
 @admin.register(TagInRecipe)
 class TagInRecipeAdmin(admin.ModelAdmin):
-    list_display = (
-        'tag_id',
-        'tag',
-        'recipe_id',
-        'recipe')
-    ordering = ('-recipe_id',)
-    search_fields = ('tag','recipe',)
-    list_filter = ('recipe','tag',)
-# @admin.register(Review)
-# class ReviewAdmin(admin.ModelAdmin):
-#     list_display = ('title_id', 'author_id', 'text', 'score', 'pub_date')
+    list_display = ("tag_id", "tag", "recipe_id", "recipe")
+    ordering = ("-recipe_id",)
+    search_fields = (
+        "tag",
+        "recipe",
+    )
+    list_filter = (
+        "recipe",
+        "tag",
+    )

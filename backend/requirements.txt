@@ -15,3 +15,6 @@ psycopg2-binary==2.9.5
 django_debug_toolbar==3.0.0
 tzdata==2023.3
 django-cors-headers==3.14.0
+drf_extra_fields==3.4.1
+django-colorfield==0.8.0
+reportlab==3.6.12
