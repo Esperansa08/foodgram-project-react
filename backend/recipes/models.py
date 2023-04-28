@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import MinValueValidator
-from django.contrib.contenttypes.fields import GenericRelation
 
 from colorfield.fields import ColorField
 
@@ -18,7 +17,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name_plural = 'Ингредиенты'
         verbose_name = 'Ингредиент'
-        ordering = ['name']
+        # ordering = ['name']
 
     def __str__(self):
         return f'{self.name} {self.measurement_unit}'
@@ -79,17 +78,16 @@ class Recipe(models.Model):
         verbose_name='Теги',
         help_text='Теги из таблицы Tag',
         through='TagInRecipe')
-    is_favorited = models.BooleanField(
-        default=False,
-        verbose_name='Находится ли в избранном')
-    is_in_shopping_cart = models.BooleanField(
-        default=False,
-        verbose_name='Находится ли в корзине')
+    # is_favorited = models.BooleanField(
+    #     default=False,
+    #     verbose_name='Находится ли в избранном')
+    # is_in_shopping_cart = models.BooleanField(
+    #     default=False,
+    #     verbose_name='Находится ли в корзине')
     image = models.ImageField(
         verbose_name='Картинка, закодированная в Base64',
         blank=True,
         upload_to='images/')
-    favorites = GenericRelation('Favorite')
 
     class Meta:
         verbose_name_plural = 'Рецепты'
@@ -108,6 +106,7 @@ class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='рецепты',
+        related_name='ingredient_list',
         on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(
         default=0,
@@ -131,8 +130,8 @@ class TagInRecipe(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Тэг-рецепт'
-        verbose_name_plural = 'Тэг-рецепт'
+        verbose_name = 'Тег-рецепт'
+        verbose_name_plural = 'Тег-рецепт'
 
     def __str__(self):
         return f'{self.tag_id} {self.recipe_id}'

@@ -13,6 +13,7 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'role',)
     list_filter = ('email', 'username', 'first_name')
 
+
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
     list_display = (

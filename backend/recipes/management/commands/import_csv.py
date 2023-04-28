@@ -33,10 +33,15 @@ class Command(BaseCommand):
             if model.objects.exists():
                 logging.info('Таблица уже содержит данные.')
             for row in DictReader(
-                open(f'{file}', encoding='utf8'), fieldnames=['name', 'measurement_unit']):
+                open(
+                    f'{file}',
+                    encoding='utf8'),
+                fieldnames=[
+                    'name',
+                    'measurement_unit']):
                 try:
                     func(row)
-                except:
+                except BaseException:
                     print(f'Не залилось! {row}')
             logging.info(MESSAGE)
         logging.info(SUCCESS_MESSAGE)

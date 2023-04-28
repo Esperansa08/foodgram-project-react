@@ -24,10 +24,10 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = (
         'author',
-        "name",
-        "tags",
+        'name',
+        'tags',
     )
-    exclude = ["ingredients", "tags"]
+    exclude = ['ingredients', 'tags']
 
     def preview(self, obj):
         return mark_safe(f"<img src='{obj.image.url}' width='60' />")
@@ -49,33 +49,33 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(IngredientInRecipe)
 class IngredientInRecipeAdmin(admin.ModelAdmin):
-    list_display = ("ingredient", "recipe_id", "recipe", "amount")
-    ordering = ("-recipe_id",)
-    search_fields = ("ingredient",)
-    list_filter = ("recipe",)
+    list_display = ('ingredient', 'recipe_id', 'recipe', 'amount')
+    ordering = ('-recipe_id',)
+    search_fields = ('ingredient',)
+    list_filter = ('recipe',)
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ("recipe", "user")
-    search_fields = ("user", "recipe",)
+    list_display = ('recipe', 'user')
+    search_fields = ('user', 'recipe',)
 
 
 @admin.register(Shopping_list)
 class Shopping_listAdmin(admin.ModelAdmin):
-    list_display = ("recipe", "user",)
-    search_fields = ("recipe",)
+    list_display = ('recipe', 'user',)
+    search_fields = ('recipe',)
 
 
 @admin.register(TagInRecipe)
 class TagInRecipeAdmin(admin.ModelAdmin):
-    list_display = ("tag_id", "tag", "recipe_id", "recipe")
-    ordering = ("-recipe_id",)
+    list_display = ('tag_id', 'tag', 'recipe_id', 'recipe')
+    ordering = ('-recipe_id',)
     search_fields = (
-        "tag",
-        "recipe",
+        'tag',
+        'recipe',
     )
     list_filter = (
-        "recipe",
-        "tag",
+        'recipe',
+        'tag',
     )
