@@ -109,4 +109,4 @@ git push
 ### Автор 
 
  * Савельева Анастасия (Visteria09@yandex.ru, https://github.com/Esperansa08) 
- * Сайт: http://esperansa.ddns.net/api/v1/ 
+ * Сайт: http://esperansa.ddns.net/api/
