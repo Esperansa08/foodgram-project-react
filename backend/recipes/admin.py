@@ -7,12 +7,12 @@ from recipes.models import (
     Tag,
     IngredientInRecipe,
     Favorite,
-    Shopping_list,
+    Shoppinglist,
     TagInRecipe,
 )
 
 
-class ingredientsInline(admin.TabularInline):
+class IngredientsInline(admin.TabularInline):
     model = IngredientInRecipe
     extra = 1
 
@@ -36,7 +36,6 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredienteAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'measurement_unit')
-    # ordering = ('-name',)
     list_filter = ('name',)
     search_fields = ('name',)
 
@@ -61,8 +60,8 @@ class FavoriteAdmin(admin.ModelAdmin):
     search_fields = ('user', 'recipe',)
 
 
-@admin.register(Shopping_list)
-class Shopping_listAdmin(admin.ModelAdmin):
+@admin.register(Shoppinglist)
+class Shopping_list_Admin(admin.ModelAdmin):
     list_display = ('recipe', 'user',)
     search_fields = ('recipe',)
 

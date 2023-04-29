@@ -17,7 +17,6 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name_plural = 'Ингредиенты'
         verbose_name = 'Ингредиент'
-        # ordering = ['name']
 
     def __str__(self):
         return f'{self.name} {self.measurement_unit}'
@@ -78,12 +77,6 @@ class Recipe(models.Model):
         verbose_name='Теги',
         help_text='Теги из таблицы Tag',
         through='TagInRecipe')
-    # is_favorited = models.BooleanField(
-    #     default=False,
-    #     verbose_name='Находится ли в избранном')
-    # is_in_shopping_cart = models.BooleanField(
-    #     default=False,
-    #     verbose_name='Находится ли в корзине')
     image = models.ImageField(
         verbose_name='Картинка, закодированная в Base64',
         blank=True,
@@ -162,7 +155,7 @@ class Favorite(models.Model):
         return f"{self.recipe}"
 
 
-class Shopping_list(models.Model):
+class Shoppinglist(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

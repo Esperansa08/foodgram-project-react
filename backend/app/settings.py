@@ -26,6 +26,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'corsheaders',
     'colorfield',
     'django_filters',
 )
@@ -47,8 +48,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
+CORS_ORIGINS_ALLOWED_ALL = True
 ROOT_URLCONF = 'app.urls'
 TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
@@ -114,6 +117,7 @@ USE_TZ = True
 THOUSAND_SEPARATOR = ' '
 USE_THOUSAND_SEPARATOR = True
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static/'
 

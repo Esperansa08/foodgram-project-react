@@ -20,10 +20,9 @@ from recipes.models import (
     Tag,
     IngredientInRecipe,
     Favorite,
-    Shopping_list,
-)
+    Shoppinglist,)
 from users.models import Subscribe
-
+from .filters import RecipeFilter
 from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (
     IngredientSerializer,
@@ -32,8 +31,7 @@ from .serializers import (
     RecipeSerializerRead,
     RecipeSerializerWrite,
     SubscribeSerializer,
-    CustomUserSerializer,
-)
+    CustomUserSerializer,)
 
 User = get_user_model()
 
@@ -95,6 +93,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly,)
     queryset = Recipe.objects.all()
     pagination_class = LimitOffsetPagination
+    filterset_class = RecipeFilter
+    filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -119,9 +119,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         """Добавление и удаление из списка покупок."""
         if request.method == 'POST':
-            return self.add_recipe(Shopping_list, request.user, pk)
+            return self.add_recipe(Shoppinglist, request.user, pk)
         else:
-            return self.delete_recipe(Shopping_list, request.user, pk)
+            return self.delete_recipe(Shoppinglist, request.user, pk)
 
     def add_recipe(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():

@@ -18,7 +18,7 @@ logging.basicConfig(
 class Command(BaseCommand):
     help = 'Команда для создания БД на основе имеющихся csv файлов'
 
-    def ingredient_create(row):
+    def ingredient_create(self, row):
         Ingredient.objects.create(
             name=row['name'],
             measurement_unit=row['measurement_unit'])

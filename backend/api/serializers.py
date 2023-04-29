@@ -14,7 +14,7 @@ from recipes.models import (
     Ingredient,
     Tag,
     IngredientInRecipe,
-    Shopping_list,
+    Shoppinglist,
     Favorite)
 from users.models import Subscribe
 
@@ -109,7 +109,7 @@ class RecipeSerializerRead(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return Shopping_list.objects.filter(
+        return Shoppinglist.objects.filter(
             recipe=obj, user=request.user).exists()
 
     def get_is_favorited(self, obj):
