@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: esperansa/foodgram-backend
+    image: esperansa/foodgram-backend:latest
     restart: always
     volumes:
           - static_value:/app/static/
@@ -21,8 +21,7 @@ services:
       - ./.env
 
   frontend:
-    build:
-    image: esperansa/foodgram-backend
+    image: esperansa/foodgram-backend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
