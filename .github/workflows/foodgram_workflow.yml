@@ -17,7 +17,7 @@ jobs:
       run: | 
         python -m pip install --upgrade pip 
         pip install flake8 flake8-broken-line
-        cd foodgram-project-react/
+        cd backend/
         pip install -r requirements.txt 
 
     - name: Lint with flake8
