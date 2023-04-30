@@ -87,8 +87,8 @@ DATABASES = {
                             default='django.db.backends.postgresql'),
         'NAME': os.getenv('DB_NAME', default='postgres'),
         'USER': os.getenv('POSTGRES_USER', default='postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='qwerty'),
-        'HOST': os.getenv('DB_HOST', default='db'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='927a5ab40'),
+        'HOST': os.getenv('DB_HOST', default='localhost'),
         'PORT': os.getenv('DB_PORT', default=5432)
     }
 }
@@ -117,7 +117,7 @@ USE_TZ = True
 THOUSAND_SEPARATOR = ' '
 USE_THOUSAND_SEPARATOR = True
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static/'
 
