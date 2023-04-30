@@ -1,4 +1,4 @@
-(   ![workflow](https://github.com/Esperansa08/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg) )
+![workflow](https://github.com/Esperansa08/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg) 
 
 # сайт Foodgram «Продуктовый помощник»
 
