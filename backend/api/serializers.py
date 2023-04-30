@@ -10,13 +10,8 @@ from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.fields import IntegerField
 
 
-from recipes.models import (
-    Recipe,
-    Ingredient,
-    Tag,
-    IngredientInRecipe,
-    Shoppinglist,
-    Favorite)
+from recipes.models import Recipe, Ingredient, Tag, IngredientInRecipe
+#  Favorite)
 from users.models import Subscribe
 
 User = get_user_model()
@@ -117,7 +112,8 @@ class RecipeSerializerRead(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Favorite.objects.filter(recipe=obj, user=user).exists()
+        # return Favorite.objects.filter(recipe=obj, user=user).exists()
+        return user.favorites.filter(recipe=obj).exists()
 
 
 def clean_unique(ingredients):
@@ -132,7 +128,6 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
                                                validators=[clean_unique])
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
                                   required=True, validators=[clean_unique])
-    id = serializers.ReadOnlyField()
 
     class Meta:
         model = Recipe
@@ -167,9 +162,22 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=request.user,
                                        **validated_data)
-        self.create_ingredients(recipe, ingredients)
         recipe.tags.set(tags)
+        self.create_ingredients_amounts(recipe=recipe,
+                                        ingredients=ingredients)
         return recipe
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        instance = super().update(instance, validated_data)
+        instance.tags.clear()
+        instance.tags.set(tags)
+        instance.ingredients.clear()
+        self.create_ingredients_amounts(recipe=instance,
+                                        ingredients=ingredients)
+        instance.save()
+        return instance
 
 
 class SubscribeSerializer(CustomUserSerializer):
