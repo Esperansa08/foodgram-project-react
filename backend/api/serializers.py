@@ -6,7 +6,7 @@ from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.relations import PrimaryKeyRelatedField
+# from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.fields import IntegerField
 from django.db import transaction
 
@@ -125,7 +125,7 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
     ingredients = IngredientInRecipeSerializer(many=True)
-    #ingredients = IngredientInRecipeSerializer(many=True, required=True)
+    # ingredients = IngredientInRecipeSerializer(many=True, required=True)
     #                                           validators=[clean_unique])
     # tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
     #                               required=True)
