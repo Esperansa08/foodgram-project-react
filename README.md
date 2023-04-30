@@ -40,11 +40,11 @@ git clone https://github.com/Esperansa08/foodgram-project-react.git
 
 1. Установите на сервере `docker` и `docker-сompose`. 
 2. Создайте файл `/infra/.env`. Шаблон для заполнения файла нахоится в `/infra/example.env`. 
-3. Выполните команду `docker-compose up -d --buld`. 
-4. Выполните миграции `docker-compose exec web python manage.py migrate`. 
-5. Создайте суперюзера `docker-compose exec web python manage.py createsuperuser`. 
-6. Соберите статику `docker-compose exec web python manage.py collectstatic --no-input`. 
-7. При необходимости заполните базу `docker-compose exec web python manage.py loaddata fixtures.json`. 
+3. Выполните команду `sudo docker-compose up -d --buld`. 
+4. Выполните миграции `sudo docker-compose exec backend python manage.py migrate`. 
+5. Создайте суперюзера `sudo docker-compose exec backend python manage.py createsuperuser`. 
+6. Соберите статику `sudo docker-compose exec backend python manage.py collectstatic --no-input`. 
+7. При необходимости заполните базу `sudo docker-compose exec backend python manage.py loaddata fixtures.json`. 
 8. Документация к API находится по адресу: <http://localhost/redoc/>. 
 
 #### Настройка проекта для развертывания на удаленном сервере 

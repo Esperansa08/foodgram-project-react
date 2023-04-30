@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db.models import F
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
@@ -21,14 +22,14 @@ from users.models import Subscribe
 User = get_user_model()
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(UserCreateSerializer):
     class Meta:
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
         model = User
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
