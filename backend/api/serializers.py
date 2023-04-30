@@ -105,7 +105,7 @@ class RecipeSerializerRead(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.shopping_cart.filter(recipe=obj).exists()
+        return user.shopping_list.filter(recipe=obj).exists()
 
     def get_is_favorited(self, obj):
         """Находится ли в избранном."""
