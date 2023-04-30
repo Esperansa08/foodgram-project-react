@@ -39,11 +39,9 @@ User = get_user_model()
 class UserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     queryset = User.objects.all()
-    lookup_field = "username"
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
-    http_method_names = ['get', 'post']
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(IsAuthenticated,))
