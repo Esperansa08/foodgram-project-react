@@ -164,8 +164,7 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         recipe = Recipe.objects.create(author=request.user,
                                        **validated_data)
         recipe.tags.set(tags)
-        self.create_ingredients_amounts(recipe=recipe,
-                                        ingredients=ingredients)
+        self.create_ingredients(recipe=recipe, ingredients=ingredients)
         return recipe
 
     def update(self, instance, validated_data):
@@ -175,8 +174,7 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         instance.tags.clear()
         instance.tags.set(tags)
         instance.ingredients.clear()
-        self.create_ingredients_amounts(recipe=instance,
-                                        ingredients=ingredients)
+        self.create_ingredients(recipe=instance, ingredients=ingredients)
         instance.save()
         return instance
 
