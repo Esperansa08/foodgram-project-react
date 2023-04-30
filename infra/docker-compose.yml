@@ -21,7 +21,7 @@ services:
       - ./.env
 
   frontend:
-    image: esperansa/foodgram-backend:latest
+    image: esperansa/foodgram-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
