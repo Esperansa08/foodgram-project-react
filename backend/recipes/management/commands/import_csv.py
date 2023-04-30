@@ -11,9 +11,7 @@ SUCCESS_MESSAGE = 'Все данные успешно загружены'
 logging.basicConfig(
     level=logging.DEBUG,
     filename='main.log',
-    filemode='a',
-    encoding='UTF-8'
-)
+    filemode='a')
 
 
 class Command(BaseCommand):
