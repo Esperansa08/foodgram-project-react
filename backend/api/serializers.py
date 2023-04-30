@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.fields import IntegerField
-
+from django.db import transaction
 
 from recipes.models import Recipe, Ingredient, Tag, IngredientInRecipe
 #  Favorite)
@@ -148,15 +148,17 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         return RecipeSerializerRead(instance,
                                     context=context).data
 
+    @transaction.atomic
     def create_ingredients(self, recipe, ingredients):
         """Создание списка ингредиентов"""
         IngredientInRecipe.objects.bulk_create(
             [IngredientInRecipe(
                 recipe=recipe,
-                ingredient=Ingredient.objects.get(id=row['id']),
-                amount=row.get('amount'),
-            ) for row in ingredients])
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                amount=ingredient['amount']
+            ) for ingredient in ingredients])
 
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         tags = validated_data.pop('tags')
@@ -167,6 +169,7 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         self.create_ingredients(recipe=recipe, ingredients=ingredients)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
