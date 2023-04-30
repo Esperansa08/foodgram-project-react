@@ -1,3 +1,5 @@
+(   ![workflow](https://github.com/Esperansa08/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg) )
+
 # сайт Foodgram «Продуктовый помощник»
 
 ### Содержание: 
@@ -14,11 +16,13 @@
 
 На этом онлайн-сервисе пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
 
-Проект развернут на сервере <http://158.160.11.245/redoc/> 
- 
+Проект развернут на сервере: <http://esperansa.ddns.net/recipes/>
+Документация к API находится по адресу:  <http://esperansa.ddns.net/api/docs/>
+
+
 ### Технологии 
 
-(   ![workflow](https://github.com/Esperansa08/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg) )
+
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) 
 ![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white) 
 ![DjangoREST](https://img.shields.io/badge/DJANGO-REST-ff1709?style=for-the-badge&logo=django&logoColor=white&color=ff1709&labelColor=gray) 
@@ -45,7 +49,7 @@ git clone https://github.com/Esperansa08/foodgram-project-react.git
 5. Создайте суперюзера `sudo docker-compose exec backend python manage.py createsuperuser`. 
 6. Соберите статику `sudo docker-compose exec backend python manage.py collectstatic --no-input`. 
 7. При необходимости заполните базу `sudo docker-compose exec backend python manage.py loaddata fixtures.json`. 
-8. Документация к API находится по адресу: <http://localhost/redoc/>. 
+8. Документация к API находится по адресу: <http://localhost/api/docs/>. 
 
 #### Настройка проекта для развертывания на удаленном сервере 
 
@@ -55,7 +59,7 @@ git clone https://github.com/Esperansa08/foodgram-project-react.git
  
 ```bash 
     scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yaml 
-    scp default.conf <username>@<host>:/home/<username>/nginx/default.conf 
+    scp nginx.conf <username>@<host>:/home/<username>/nginx/default.conf 
 ``` 
 
 4. Необходимо добавить Action secrets в репозитории на GitHub в разделе settings -> Secrets: 
