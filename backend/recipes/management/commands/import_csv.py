@@ -11,14 +11,15 @@ SUCCESS_MESSAGE = 'Все данные успешно загружены'
 logging.basicConfig(
     level=logging.DEBUG,
     filename='main.log',
-    filemode='w'
+    filemode='a',
+    encoding='UTF-8'
 )
 
 
 class Command(BaseCommand):
     help = 'Команда для создания БД на основе имеющихся csv файлов'
 
-    def ingredient_create(self, row):
+    def ingredient_create(row):
         Ingredient.objects.create(
             name=row['name'],
             measurement_unit=row['measurement_unit'])
@@ -43,5 +44,6 @@ class Command(BaseCommand):
                     func(row)
                 except BaseException:
                     print(f'Не залилось! {row}')
+                    logging.exception("message")
             logging.info(MESSAGE)
         logging.info(SUCCESS_MESSAGE)
