@@ -22,7 +22,7 @@ from users.models import Subscribe
 User = get_user_model()
 
 
-class UserCreateSerializer(UserCreateSerializer):
+class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
