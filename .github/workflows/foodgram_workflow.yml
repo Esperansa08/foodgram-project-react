@@ -83,7 +83,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         script: |
           sudo rm -f .env
-          sudo touch .env
+          touch .env
           sudo echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
           sudo echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           sudo echo DB_NAME=${{ secrets.DB_NAME }} >> .env
@@ -109,4 +109,4 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: ${{ github.workflow }} - ${{ github.event.head_commit.message }} успешно выполнен!
+        message: ${{ github.workflow }} - "${{ github.event.head_commit.message }}" успешно выполнен!
