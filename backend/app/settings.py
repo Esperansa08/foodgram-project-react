@@ -108,7 +108,6 @@ USE_TZ = True
 THOUSAND_SEPARATOR = ' '
 USE_THOUSAND_SEPARATOR = True
 
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static/'
 
@@ -140,10 +139,6 @@ DJOSER = {
         'user': 'api.serializers.CustomUserSerializer',
         'current_user': 'api.serializers.CustomUserSerializer',
     },
-    # 'PERMISSIONS': {
-    #     'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-    #     # 'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-    # },
     'HIDE_USERS': False,
 }
 
