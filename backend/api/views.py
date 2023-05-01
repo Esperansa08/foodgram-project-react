@@ -151,7 +151,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
         y = 750
-        shopping_list = ('Список покупок : ')
         filename = f'{user.username}_shopping_list.pdf'
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -160,6 +159,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                        'static/FreeSans.ttf'))
         p.setFont('FreeSans', 16)
         p.drawString(100, y, 'Список покупок : ')
+        shopping_list = ''
         for ingredient in ingredients:
             p.drawString(100, y, shopping_list)
             shopping_list = (f'* {ingredient["ingredient__name"]} '
