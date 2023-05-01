@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
@@ -23,6 +23,8 @@ from .serializers import (IngredientSerializer, RecipeSerializer,
                           TagSerializer, RecipeSerializerRead,
                           RecipeSerializerWrite, SubscribeSerializer,
                           CustomUserSerializer,)
+from recipes.forms import RecipeForm
+
 
 User = get_user_model()
 
@@ -161,6 +163,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
         p.save()
 
         return response
+
+    def get_ingredients(request):
+        ingredients = {}
+        for key in request.POST:
+            if key.startswith('nameIngredient'):
+                ingredient_item = key.split('_')[1]
+                ingredients[request.POST[key]] = request.POST[
+                    'valueIngredient_' + ingredient_item]
+        return ingredients
+
+    def new_recipe(self, request):
+        form = RecipeForm(request.POST or None, files=request.FILES or None,
+                          initial={'author': request.user})
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.author = request.user
+            recipe.save()
+            ingredients_add = self.get_ingredients(request)
+            if not ingredients_add:
+                return render(
+                    request,
+                    'create_recipe.html',
+                    {'form': form,
+                     'new': True,
+                     'errors': 'Добавьте ингредиент'})
+            form.save_recipe(recipe, ingredients_add)
+            form.save_m2m()
+            return redirect('recipe', recipe_id=recipe.id)
+        context = {'form': form, 'new': True}
+        return render(request, 'create_recipe.html', context)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
