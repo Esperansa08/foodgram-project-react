@@ -161,10 +161,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         p.drawString(100, y, 'Список покупок : ')
         shopping_list = ''
         for ingredient in ingredients:
-            p.drawString(100, y, shopping_list)
             shopping_list = (f'* {ingredient["ingredient__name"]} '
                              f'({ingredient["ingredient__measurement_unit"]})'
                              f' - {ingredient["amount"]}')
+            p.drawString(100, y, shopping_list)
             y -= 30
         p.showPage()
         p.save()
