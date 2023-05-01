@@ -14,24 +14,15 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-from recipes.models import (
-    Ingredient,
-    Recipe,
-    Tag,
-    IngredientInRecipe,
-    Favorite,
-    Shoppinglist,)
+from recipes.models import (Ingredient, Recipe, Tag, IngredientInRecipe,
+                            Favorite, Shoppinglist,)
 from users.models import Subscribe
 from .filters import RecipeFilter
 from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
-from .serializers import (
-    IngredientSerializer,
-    RecipeSerializer,
-    TagSerializer,
-    RecipeSerializerRead,
-    RecipeSerializerWrite,
-    SubscribeSerializer,
-    CustomUserSerializer,)
+from .serializers import (IngredientSerializer, RecipeSerializer,
+                          TagSerializer, RecipeSerializerRead,
+                          RecipeSerializerWrite, SubscribeSerializer,
+                          CustomUserSerializer,)
 
 User = get_user_model()
 
@@ -46,7 +37,7 @@ class UserViewSet(UserViewSet):
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(IsAuthenticated,))
     def subscribe(self, request, **kwargs):
-        """Подписываемся и отписываемся."""
+        """Подписываемся и отписываемся от автора."""
         user = request.user
         author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)

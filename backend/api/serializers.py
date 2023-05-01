@@ -6,12 +6,10 @@ from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
-# from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.fields import IntegerField
-from django.db import transaction
 
 from recipes.models import Recipe, Ingredient, Tag, IngredientInRecipe
-#  Favorite)
 from users.models import Subscribe
 
 User = get_user_model()
@@ -112,7 +110,6 @@ class RecipeSerializerRead(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        # return Favorite.objects.filter(recipe=obj, user=user).exists()
         return user.favorites.filter(recipe=obj).exists()
 
 
@@ -125,11 +122,10 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
     ingredients = IngredientInRecipeSerializer(many=True)
-    # ingredients = IngredientInRecipeSerializer(many=True, required=True)
-    #                                           validators=[clean_unique])
-    # tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
-    #                               required=True)
-    # #  ,validators=[clean_unique])
+    ingredients = IngredientInRecipeSerializer(many=True, required=True,
+                                               validators=[clean_unique])
+    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
+                                  required=True, validators=[clean_unique])
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
 
@@ -151,7 +147,6 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         return RecipeSerializerRead(instance,
                                     context=self.context).data
 
-    @transaction.atomic
     def create_ingredients(self, recipe, ingredients):
         """Создание списка ингредиентов"""
         IngredientInRecipe.objects.bulk_create(
@@ -161,7 +156,6 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
                 amount=ingredient['amount']
             ) for ingredient in ingredients])
 
-    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         tags = validated_data.pop('tags')
@@ -172,7 +166,6 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         self.create_ingredients(recipe=recipe, ingredients=ingredients)
         return recipe
 
-    @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
