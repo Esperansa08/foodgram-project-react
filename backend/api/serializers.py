@@ -146,10 +146,10 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         return ingredients
 
     def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
+        # request = self.context.get('request')
+        # context = {'request': request}
         return RecipeSerializerRead(instance,
-                                    context=context).data
+                                    context=self.context).data
 
     @transaction.atomic
     def create_ingredients(self, recipe, ingredients):
