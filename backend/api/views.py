@@ -3,26 +3,27 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from djoser.views import UserViewSet
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
-from recipes.models import (Ingredient, Recipe, Tag, IngredientInRecipe,
-                            Favorite, Shoppinglist,)
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingList, Tag)
 from users.models import Subscribe
+
 from .filters import RecipeFilter
-from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
-from .serializers import (IngredientSerializer, RecipeSerializer,
-                          TagSerializer, RecipeSerializerRead,
+from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .serializers import (CustomUserSerializer, IngredientSerializer,
+                          RecipeSerializer, RecipeSerializerRead,
                           RecipeSerializerWrite, SubscribeSerializer,
-                          CustomUserSerializer,)
+                          TagSerializer)
 
 User = get_user_model()
 
@@ -50,12 +51,9 @@ class UserViewSet(UserViewSet):
             Subscribe.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
-            subscription = get_object_or_404(Subscribe,
-                                             user=user,
-                                             author=author)
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        subscription = get_object_or_404(Subscribe, user=user, author=author)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
@@ -100,17 +98,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Добавление и удаление из избранного."""
         if request.method == 'POST':
             return self.add_recipe(Favorite, request.user, pk)
-        else:
-            return self.delete_recipe(Favorite, request.user, pk)
+        return self.delete_recipe(Favorite, request.user, pk)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         """Добавление и удаление из списка покупок."""
         if request.method == 'POST':
-            return self.add_recipe(Shoppinglist, request.user, pk)
-        else:
-            return self.delete_recipe(Shoppinglist, request.user, pk)
+            return self.add_recipe(ShoppingList, request.user, pk)
+        return self.delete_recipe(ShoppingList, request.user, pk)
 
     def add_recipe(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
@@ -140,7 +136,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
+        ).annotate(total_amount=Sum('amount'))
         y = 750
         filename = f'{user.username}_shopping_list.pdf'
         response = HttpResponse(content_type='application/pdf')
@@ -155,7 +151,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             y -= 30
             shopping_list = (f'* {ingredient["ingredient__name"]} '
                              f'({ingredient["ingredient__measurement_unit"]})'
-                             f' - {ingredient["amount"]}')
+                             f' - {ingredient["total_amount"]}')
             p.drawString(100, y, shopping_list)
         p.showPage()
         p.save()

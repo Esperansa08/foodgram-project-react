@@ -2,15 +2,16 @@ from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db.models import F
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers, status
-from rest_framework.validators import UniqueValidator
-from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField
+from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.validators import UniqueValidator
 
-from recipes.models import Recipe, Ingredient, Tag, IngredientInRecipe
+from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from users.models import Subscribe
+from .utils import clean_unique
 
 User = get_user_model()
 
@@ -113,11 +114,6 @@ class RecipeSerializerRead(serializers.ModelSerializer):
         return user.favorites.filter(recipe=obj).exists()
 
 
-def clean_unique(ingredients):
-    """Валидатор, оставляющий только уникальные значения."""
-    return list(set(ingredients))
-
-
 class RecipeSerializerWrite(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
@@ -142,8 +138,6 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         return ingredients
 
     def to_representation(self, instance):
-        # request = self.context.get('request')
-        # context = {'request': request}
         return RecipeSerializerRead(instance,
                                     context=self.context).data
 
@@ -174,7 +168,6 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         instance.tags.set(tags)
         instance.ingredients.clear()
         self.create_ingredients(recipe=instance, ingredients=ingredients)
-        instance.save()
         return instance
 
 

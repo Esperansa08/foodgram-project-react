@@ -1,8 +1,7 @@
-from django.contrib.auth import get_user_model
-from django.db import models
-from django.core.validators import MinValueValidator
-
 from colorfield.fields import ColorField
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+from django.db import models
 
 User = get_user_model()
 
@@ -65,7 +64,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='recipes',
         verbose_name='Автор рецепта',
         help_text='Автор из таблицы User')
     cooking_time = models.IntegerField(
@@ -110,6 +109,10 @@ class IngredientInRecipe(models.Model):
     class Meta:
         verbose_name = 'Ингредиент-рецепт'
         verbose_name_plural = 'Ингредиент-рецепт'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='Не должно быть одинаковый ингредиентов!')]
 
     def __str__(self):
         return (
@@ -125,6 +128,10 @@ class TagInRecipe(models.Model):
     class Meta:
         verbose_name = 'Тег-рецепт'
         verbose_name_plural = 'Тег-рецепт'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='Не должно быть одинаковых тэгов!')]
 
     def __str__(self):
         return f'{self.tag_id} {self.recipe_id}'
@@ -155,7 +162,7 @@ class Favorite(models.Model):
         return f"{self.recipe}"
 
 
-class Shoppinglist(models.Model):
+class ShoppingList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -170,6 +177,10 @@ class Shoppinglist(models.Model):
     class Meta:
         verbose_name_plural = 'Список покупок'
         verbose_name = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'user'],
+                name='Не должно быть одинаковых рецептов!')]
 
     def __str__(self):
         return f"{self.user}"

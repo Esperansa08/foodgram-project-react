@@ -2,8 +2,8 @@
 
 import colorfield.fields
 import django.core.validators
-from django.db import migrations, models
 import django.db.models.deletion
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Shoppinglist',
+            name='ShoppingList',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
             ],
@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(fields=('name', 'color'), name='Каждому тэгу свой цвет!'),
         ),
         migrations.AddField(
-            model_name='shoppinglist',
+            model_name='ShoppingList',
             name='recipe',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shopping_list', to='recipes.recipe', verbose_name='Рецепт'),
         ),

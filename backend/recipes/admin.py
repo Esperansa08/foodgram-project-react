@@ -1,15 +1,8 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from recipes.models import (
-    Recipe,
-    Ingredient,
-    Tag,
-    IngredientInRecipe,
-    Favorite,
-    Shoppinglist,
-    TagInRecipe,
-)
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingList, Tag, TagInRecipe)
 
 
 class IngredientsInline(admin.TabularInline):
@@ -60,7 +53,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     search_fields = ('user', 'recipe',)
 
 
-@admin.register(Shoppinglist)
+@admin.register(ShoppingList)
 class Shopping_list_Admin(admin.ModelAdmin):
     list_display = ('recipe', 'user',)
     search_fields = ('recipe',)
