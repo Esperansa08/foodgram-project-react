@@ -137,8 +137,14 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         return ingredients
 
     def to_representation(self, instance):
-        return RecipeSerializerRead(instance,
-                                    context=self.context).data
+        recipe = super().to_representation(instance)
+        recipe['ingredients'] = IngredientInRecipeSerializer(
+            instance.recipe_ingredients.all(), many=True).data
+        recipe['tags'] = TagSerializer(
+            instance.tags.all(), many=True).data
+        recipe['author'] = UserSerializer(
+            instance.author).data
+        return recipe
 
     def create_ingredients(self, recipe, ingredients):
         """Создание списка ингредиентов"""
