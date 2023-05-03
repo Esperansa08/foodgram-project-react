@@ -117,13 +117,13 @@ class RecipeSerializerRead(serializers.ModelSerializer):
 class RecipeSerializerWrite(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
-    ingredients = IngredientInRecipeSerializer(many=True)
+    # ingredients = IngredientInRecipeSerializer(many=True)
     ingredients = IngredientInRecipeSerializer(many=True, required=True,
                                                validators=[clean_unique])
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
                                   required=True, validators=[clean_unique])
-    tags = serializers.PrimaryKeyRelatedField(many=True,
-                                              queryset=Tag.objects.all())
+    # tags = serializers.PrimaryKeyRelatedField(many=True,
+    #                                           queryset=Tag.objects.all())
 
     class Meta:
         model = Recipe
