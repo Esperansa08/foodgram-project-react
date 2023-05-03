@@ -69,7 +69,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = IntegerField(write_only=True)
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -117,14 +119,10 @@ class RecipeSerializerRead(serializers.ModelSerializer):
 class RecipeSerializerWrite(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
-    ingredients = IngredientInRecipeSerializer(many=True)
-    # ingredients = IngredientInRecipeSerializer(many=True, required=True,
-    #                                            validators=[clean_unique])
-    # tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
-    #                               required=True, validators=[clean_unique])
-    tags = TagSerializer(many=True)
-    # tags = serializers.PrimaryKeyRelatedField(many=True,
-    #                                           queryset=Tag.objects.all())
+    ingredients = IngredientInRecipeSerializer(many=True, write_only=True,
+                                               validators=[clean_unique])
+    tags = serializers.PrimaryKeyRelatedField(many=True,
+                                              queryset=Tag.objects.all())
 
     class Meta:
         model = Recipe
