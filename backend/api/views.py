@@ -11,7 +11,7 @@ from reportlab.pdfgen import canvas
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
@@ -30,6 +30,7 @@ User = get_user_model()
 class UserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     queryset = User.objects.all()
+    permission_classes = (AllowAny,)
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
@@ -71,7 +72,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = IngredientSerializer
     search_fields = ('^name',)
-    pagination_class = LimitOffsetPagination
+    pagination_class = None
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
 
 
@@ -162,3 +163,4 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = TagSerializer
+    pagination_class = None
