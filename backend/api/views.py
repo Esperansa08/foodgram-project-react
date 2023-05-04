@@ -75,6 +75,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ('^name',)
     pagination_class = None
 
+
 class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly,)
     queryset = Recipe.objects.all()
