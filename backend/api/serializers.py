@@ -129,13 +129,13 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
     def validate_ingredients(self, ingredients):
         """Валидатор ингредиентов"""
         ingredient_list = []
+        massage = 'Не должно быть повторяющихся ингредиентов'
         for ingredient in ingredients:
             print(ingredient)
             if int(ingredient['amount']) <= 0:
                 raise ValidationError('Выберите кол-во для ингредиента')
             if ingredient['id'] in ingredient_list:
-                raise ValidationError(
-                    'Не должно быть повторяющихся ингредиентов')
+                raise ValidationError([{"ingredient": [massage]}, {}])
             ingredient_list.append(ingredient['id'])
         return ingredients
 
