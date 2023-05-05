@@ -158,8 +158,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if kol_str % 25 == 0:
                 y = 750
                 p.showPage()
+                p.setFont('FreeSans', 16)
             p.drawString(100, y, shopping_list)
-            # if kol_str == len(ingredients):
         p.showPage()
         p.save()
 
