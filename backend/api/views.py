@@ -147,12 +147,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         p.setFont('FreeSans', 16)
         p.drawString(100, y, 'Список покупок : ')
         shopping_list = ''
+        kol_str = 0
+        print(type(ingredients))
         for ingredient in ingredients:
             y -= 30
             shopping_list = (f'* {ingredient["ingredient__name"]} '
                              f'({ingredient["ingredient__measurement_unit"]})'
                              f' - {ingredient["total_amount"]}')
             p.drawString(100, y, shopping_list)
+            kol_str += 1
+            if kol_str % 25 == 0:
+
+                p.showPage()
+            # if kol_str == len(ingredients):
         p.showPage()
         p.save()
 
