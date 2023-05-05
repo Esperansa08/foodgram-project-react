@@ -117,8 +117,7 @@ class RecipeSerializerRead(serializers.ModelSerializer):
 class RecipeSerializerWrite(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
-    ingredients = IngredientInRecipeSerializer(many=True, required=True,
-                                               validators=[clean_unique])
+    ingredients = IngredientInRecipeSerializer(many=True, required=True)
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True,
                                   required=True, validators=[clean_unique])
 

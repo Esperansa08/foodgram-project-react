@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-# from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -155,7 +154,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                              f'({ingredient["ingredient__measurement_unit"]})'
                              f' - {ingredient["total_amount"]}')
             kol_str += 1
-            if kol_str % 25 == 0:
+            if kol_str % 26 == 0:
                 y = 800
                 p.showPage()
                 p.setFont('FreeSans', 16)
