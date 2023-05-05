@@ -154,11 +154,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shopping_list = (f'* {ingredient["ingredient__name"]} '
                              f'({ingredient["ingredient__measurement_unit"]})'
                              f' - {ingredient["total_amount"]}')
-            p.drawString(100, y, shopping_list)
             kol_str += 1
             if kol_str % 25 == 0:
 
                 p.showPage()
+            p.drawString(100, y, shopping_list)
             # if kol_str == len(ingredients):
         p.showPage()
         p.save()
