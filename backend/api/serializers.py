@@ -128,12 +128,14 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
 
     def validate_ingredients(self, ingredients):
         """Валидатор ингредиентов"""
-        # ingredient_list = []
+        ingredient_list = []
         for ingredient in ingredients:
             if int(ingredient['amount']) <= 0:
                 ValidationError('Выберите кол-во для ингредиента')
-            if ingredients != str(set(ingredients)):
+            if ingredient['ingredient'] in ingredient_list:
                 ValidationError('Не должно быть повторяющихся ингредиентов')
+            ingredient_list.append(ingredient['ingredient'])
+            
         return ingredients
 
     def to_representation(self, instance):

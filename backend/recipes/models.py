@@ -112,7 +112,7 @@ class IngredientInRecipe(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
-                name='Не должно быть одинаковый ингредиентов!')]
+                name='Не должно быть одинаковых ингредиентов!')]
 
     def __str__(self):
         return (
