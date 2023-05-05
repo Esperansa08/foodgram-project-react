@@ -137,7 +137,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(total_amount=Sum('amount'))
-        y = 750
+        y = 800
         filename = f'{user.username}_shopping_list.pdf'
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -156,7 +156,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                              f' - {ingredient["total_amount"]}')
             kol_str += 1
             if kol_str % 25 == 0:
-                y = 750
+                y = 800
                 p.showPage()
                 p.setFont('FreeSans', 16)
             p.drawString(100, y, shopping_list)
