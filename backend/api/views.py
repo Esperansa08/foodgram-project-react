@@ -141,7 +141,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         filename = f'{user.username}_shopping_list.pdf'
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        p = canvas.Canvas(response, pagesize=A4)
+        p = canvas.Canvas(response)
         pdfmetrics.registerFont(TTFont('FreeSans',
                                        'static/FreeSans.ttf'))
         p.setFont('FreeSans', 16)
